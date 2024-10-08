@@ -45,9 +45,6 @@ public class Odometry extends Subsystem {
   /** Field. */
   private final Field2d field;
 
-  /** Megatag2 setup */
-  private final LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-
   /** Initializes the odometry subsystem and configures odometry hardware. */
   private Odometry() {
     gyroscope = OdometryFactory.createGyroscope(this);
@@ -67,6 +64,7 @@ public class Odometry extends Subsystem {
             new Pose2d());
 
     LimelightHelpers.SetRobotOrientation("limelight", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 
     field = new Field2d();
   }
@@ -92,6 +90,8 @@ public class Odometry extends Subsystem {
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get());
 
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
     boolean doRejectUpdate = false;
 
     if (Math.abs(gyroscopeValues.yawVelocityRotations) > 720) {
@@ -101,7 +101,6 @@ public class Odometry extends Subsystem {
       doRejectUpdate = true;
     }
     if (!doRejectUpdate) {
-      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
       poseEstimator.addVisionMeasurement(
         mt2.pose, 
         mt2.timestampSeconds);
