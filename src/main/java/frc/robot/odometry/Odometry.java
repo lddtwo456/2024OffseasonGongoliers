@@ -1,5 +1,6 @@
 package frc.robot.odometry;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,7 @@ import frc.lib.Subsystem;
 import frc.lib.Telemetry;
 import frc.lib.sensor.GyroscopeIO;
 import frc.lib.sensor.GyroscopeIO.GyroscopeIOValues;
+import frc.robot.LimelightHelpers;
 import frc.robot.swerve.Swerve;
 import java.util.function.Supplier;
 
@@ -38,7 +40,7 @@ public class Odometry extends Subsystem {
   private final Supplier<ChassisSpeeds> swerveChassisSpeedsSupplier;
 
   /** Pose estimator using the swerve drive. */
-  private final SwerveDrivePoseEstimator swervePoseEstimator;
+  private final SwerveDrivePoseEstimator poseEstimator;
 
   /** Field. */
   private final Field2d field;
@@ -54,12 +56,30 @@ public class Odometry extends Subsystem {
 
     gyroscope.update(gyroscopeValues);
 
-    swervePoseEstimator =
+    poseEstimator =
         new SwerveDrivePoseEstimator(
             Swerve.getInstance().getKinematics(),
             Rotation2d.fromRotations(gyroscopeValues.yawRotations),
             swerveModulePositionsSupplier.get(),
             new Pose2d());
+
+    LimelightHelpers.SetRobotOrientation("limelight", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+    boolean doRejectUpdate = false;
+
+    if (Math.abs(gyroscopeValues.yawVelocityRotations) > 720) {
+      doRejectUpdate = true;
+    }
+    if (mt2.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+    if (!doRejectUpdate) {
+      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+      poseEstimator.addVisionMeasurement(
+        mt2.pose, 
+        mt2.timestampSeconds);
+    }
 
     field = new Field2d();
   }
@@ -81,7 +101,7 @@ public class Odometry extends Subsystem {
   public void periodic() {
     gyroscope.update(gyroscopeValues);
 
-    swervePoseEstimator.update(
+    poseEstimator.update(
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get());
 
@@ -115,7 +135,7 @@ public class Odometry extends Subsystem {
    * @return the position of the robot on the field.
    */
   public Pose2d getPosition() {
-    return swervePoseEstimator.getEstimatedPosition();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -146,7 +166,7 @@ public class Odometry extends Subsystem {
    * @param position the position of the robot on the field.
    */
   public void setPosition(Pose2d position) {
-    swervePoseEstimator.resetPosition(
+    poseEstimator.resetPosition(
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get(),
         position);
@@ -183,7 +203,7 @@ public class Odometry extends Subsystem {
   public Twist2d getVelocity() {
     // Guards against calling before the swerve pose estimator is
     // intialized
-    if (swervePoseEstimator == null) return new Twist2d();
+    if (poseEstimator == null) return new Twist2d();
 
     ChassisSpeeds chassisSpeeds = swerveChassisSpeedsSupplier.get();
 
