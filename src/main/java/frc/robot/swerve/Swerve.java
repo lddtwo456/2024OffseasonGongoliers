@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriveRequest;
 import frc.lib.Subsystem;
@@ -316,7 +317,7 @@ public class Swerve extends Subsystem {
             rotationVelocity = request.rotationVelocityAxis()
               * Units.rotationsToRadians(rotationMotionProfileConfig.maximumVelocity());
           }
-          
+
           return ChassisSpeeds.fromFieldRelativeSpeeds(
               request.translationAxis().getX() * translationMotionProfileConfig.maximumVelocity(),
               request.translationAxis().getY() * translationMotionProfileConfig.maximumVelocity(),
@@ -330,6 +331,30 @@ public class Swerve extends Subsystem {
               chassisSpeedsLimiter.apply(
                   chassisSpeedsGetter.apply(DriveRequest.fromController(controller))));
         });
+  }
+
+  /**
+   * Stops all swerve base targeting
+   * 
+   * @return a command that stops all swerve base targeting
+   */
+  public Command stopTargeting() {
+    return Commands.runOnce(
+      () -> {
+        clearYawSetpoint();
+      });
+  }
+
+  /**
+   * Sets yaw setpoint of swerve base to target the speaker
+   * 
+   * @return a command that sets the yaw setpoint of the swerve base to target the speaker
+   */
+  public Command targetSpeaker() {
+    return Commands.runOnce(
+      () -> {
+        setYawSetpoint(0);
+      });
   }
 
   /**

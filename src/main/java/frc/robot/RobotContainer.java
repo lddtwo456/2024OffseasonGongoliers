@@ -98,6 +98,8 @@ public class RobotContainer {
 
     driverController.y().onTrue(odometry.tare());
 
+    driverController.leftTrigger().whileTrue(swerve.targetSpeaker()).onFalse(swerve.stopTargeting());
+
     operatorController.leftBumper().onTrue(superstructure.eject());
     operatorController.leftTrigger().onTrue(superstructure.intake());
 

@@ -186,6 +186,18 @@ public class Odometry extends Subsystem {
   }
 
   /**
+   * Tells the Swerve subsystem to target the speaker
+   * 
+   * @return a command that tells the Swerve subsystem to target the speaker
+   */
+  public Command targetSpeaker() {
+    return Commands.runOnce(
+      () -> {
+        Swerve.setYawSetpoint(0);
+      });
+  }
+
+  /**
    * Gets the velocity of the robot on the field.
    *
    * @return the velocity of the robot on the field.
