@@ -1,6 +1,7 @@
 package frc.robot.odometry;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.sensor.GyroscopeIO.GyroscopeIOValues;
 import frc.robot.LimelightHelpers;
 
@@ -24,12 +25,13 @@ public class Limelights {
 
   /** Adds vision measurements to pose estimator each frame
    * 
-   * @param gyroscopeValues useed to tell limelights the rotation of the robot, as well as decide if measurements will be innacurate
+   * @param gyroscopeValues Used to give the limelights a basic idea of how the robot is moving
+   * @param yaw Used to give the limelight a field oriented yaw, where 0 faces the red alliance wall and positive is ccw
    */
-  public void update(GyroscopeIOValues gyroscopeValues) {
+  public void update(GyroscopeIOValues gyroscopeValues, Rotation2d yaw) {
     for (String limelight : this.names) {
       /** Tell limelights robot yaw rotation (required for mt2) */
-      LimelightHelpers.SetRobotOrientation(limelight, gyroscopeValues.yawRotations, 0, 0, 0, 0, 0);
+      LimelightHelpers.SetRobotOrientation(limelight, yaw.getDegrees(), 0, 0, 0, 0, 0);
 
       /** Get vision pose estimate */
       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);

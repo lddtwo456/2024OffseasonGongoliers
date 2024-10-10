@@ -93,7 +93,7 @@ public class Odometry extends Subsystem {
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get());
 
-    limelights.update(gyroscopeValues);
+    limelights.update(gyroscopeValues, this.getFieldRelativeHeading());
 
     field.setRobotPose(getPosition());
   }
