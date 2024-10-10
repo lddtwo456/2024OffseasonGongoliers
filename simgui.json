@@ -94,7 +94,8 @@
           },
           "Velocity": {
             "open": true
-          }
+          },
+          "open": true
         },
         "Shooter": {
           "Flywheel": {

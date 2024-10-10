@@ -42,7 +42,7 @@ public class Odometry extends Subsystem {
   private final SwerveDrivePoseEstimator poseEstimator;
 
   /** Limelight (support multiple later) */
-  private final Limelights limelights;
+  private final LimelightsIO limelights;
 
   /** Field. */
   private final Field2d field;
@@ -65,7 +65,7 @@ public class Odometry extends Subsystem {
             swerveModulePositionsSupplier.get(),
             new Pose2d());
 
-    limelights = new Limelights(new String[] {"limelight"}, poseEstimator);
+    limelights = OdometryFactory.createLimelights(new String[] {"limelight"}, poseEstimator);
 
     poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 

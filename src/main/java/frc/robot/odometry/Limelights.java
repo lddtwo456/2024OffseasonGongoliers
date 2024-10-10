@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.sensor.GyroscopeIO.GyroscopeIOValues;
 import frc.robot.LimelightHelpers;
 
-public class Limelights {
+public class Limelights implements LimelightsIO {
   /** Limelight names */
   private final String[] names;
 
@@ -19,7 +19,6 @@ public class Limelights {
   */
   public Limelights(String[] names, SwerveDrivePoseEstimator poseEstimator) {
     this.names = names;
-
     this.poseEstimator = poseEstimator;
   }
 

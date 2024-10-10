@@ -1,5 +1,6 @@
 package frc.robot.odometry;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.util.Units;
 import frc.lib.sensor.GyroscopeIO;
 import frc.lib.sensor.GyroscopeIOPigeon2;
@@ -21,5 +22,17 @@ public class OdometryFactory {
       return new GyroscopeIOPigeon2();
 
     return new GyroscopeIOSim(() -> Units.radiansToRotations(odometry.getVelocity().dtheta));
+  }
+
+  /**
+   * Creates the limelights wrapper
+   * 
+   * @return limelights wrapper
+   */
+  public static LimelightsIO createLimelights(String[] names, SwerveDrivePoseEstimator poseEstimator) {
+    if (Robot.isReal() && RobotConstants.REAL_SUBSYSTEMS.contains(Subsystem.ODOMETRY))
+      return new Limelights(names, poseEstimator);
+
+    return new LimelightsSim(names, poseEstimator);
   }
 }
