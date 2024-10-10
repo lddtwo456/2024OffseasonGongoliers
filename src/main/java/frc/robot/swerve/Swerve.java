@@ -1,5 +1,7 @@
 package frc.robot.swerve;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,6 +36,10 @@ public class Swerve extends Subsystem {
 
   /** Swerve kinematics. */
   private final SwerveDriveKinematics swerveKinematics;
+
+  /** Swerve yaw PID controller */
+  private final PIDController yawPIDController;
+  private Double yawSetpoint = null;
 
   /** Steer motor config. */
   private final MechanismConfig steerConfig =
@@ -95,6 +101,10 @@ public class Swerve extends Subsystem {
             SwerveFactory.createNorthEastModuleTranslation(),
             SwerveFactory.createSouthEastModuleTranslation(),
             SwerveFactory.createSouthWestModuleTranslation());
+
+    yawPIDController = new PIDController(1.0, 0, 0);
+    yawPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    yawPIDController.setTolerance(Math.toRadians(2.0));
   }
 
   /**
@@ -240,6 +250,32 @@ public class Swerve extends Subsystem {
   public double driveRadius() {
     return SwerveFactory.createNorthEastModuleTranslation().getNorm();
   }
+  
+  /**
+   * Sets the robot's yaw setpoint
+   * 
+   * @param setpointRadians yaw setpoint in radians
+   */
+  public void setYawSetpoint(double setpointRadians) {
+    yawSetpoint = setpointRadians;
+  }
+
+  /**
+   * Clears the roboto's yaw setpoint
+   */
+  public void clearYawSetpoint() {
+    yawSetpoint = null;
+    yawPIDController.reset();
+  }
+
+  /**
+   * Returns if the swerve chassis is at the yaw setpoint
+   * 
+   * @return if the swerve chassis is at the yaw setpoint
+   */
+  public boolean atYawSetpoint() {
+    return yawSetpoint != null && yawPIDController.atSetpoint();
+  }
 
   /**
    * Drives the swerve using an Xbox controller.
@@ -268,11 +304,23 @@ public class Swerve extends Subsystem {
 
     final Function<DriveRequest, ChassisSpeeds> chassisSpeedsGetter =
         request -> {
+          double rotationVelocity;
+
+          if (yawSetpoint != null) {
+            double currentYaw = Odometry.getInstance().getFieldRelativeHeading().getRadians();
+            rotationVelocity = yawPIDController.calculate(currentYaw, yawSetpoint);
+            rotationVelocity = MathUtil.clamp(rotationVelocity,
+              -rotationMotionProfileConfig.maximumVelocity(),
+              rotationMotionProfileConfig.maximumVelocity());
+          } else {
+            rotationVelocity = request.rotationVelocityAxis()
+              * Units.rotationsToRadians(rotationMotionProfileConfig.maximumVelocity());
+          }
+          
           return ChassisSpeeds.fromFieldRelativeSpeeds(
               request.translationAxis().getX() * translationMotionProfileConfig.maximumVelocity(),
               request.translationAxis().getY() * translationMotionProfileConfig.maximumVelocity(),
-              request.rotationVelocityAxis()
-                  * Units.rotationsToRadians(rotationMotionProfileConfig.maximumVelocity()),
+              rotationVelocity,
               Odometry.getInstance().getDriverRelativeHeading());
         };
 
