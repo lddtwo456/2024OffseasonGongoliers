@@ -17,7 +17,6 @@ import frc.lib.Subsystem;
 import frc.lib.Telemetry;
 import frc.lib.sensor.GyroscopeIO;
 import frc.lib.sensor.GyroscopeIO.GyroscopeIOValues;
-import frc.robot.LimelightHelpers;
 import frc.robot.swerve.Swerve;
 import java.util.function.Supplier;
 
@@ -43,7 +42,7 @@ public class Odometry extends Subsystem {
   private final SwerveDrivePoseEstimator poseEstimator;
 
   /** Limelight (support multiple later) */
-  private final Limelight limelight;
+  private final Limelights limelights;
 
   /** Field. */
   private final Field2d field;
@@ -66,7 +65,7 @@ public class Odometry extends Subsystem {
             swerveModulePositionsSupplier.get(),
             new Pose2d());
 
-    limelight = new Limelight("limelight", poseEstimator);
+    limelights = new Limelights(new String[] {"limelight"}, poseEstimator);
 
     poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 
@@ -94,7 +93,7 @@ public class Odometry extends Subsystem {
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get());
 
-    limelight.update(gyroscopeValues);
+    limelights.update(gyroscopeValues);
 
     field.setRobotPose(getPosition());
   }
