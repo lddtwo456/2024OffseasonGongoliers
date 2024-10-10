@@ -42,6 +42,9 @@ public class Odometry extends Subsystem {
   /** Pose estimator using the swerve drive. */
   private final SwerveDrivePoseEstimator poseEstimator;
 
+  /** Limelight (support multiple later) */
+  private final Limelight limelight;
+
   /** Field. */
   private final Field2d field;
 
@@ -63,7 +66,8 @@ public class Odometry extends Subsystem {
             swerveModulePositionsSupplier.get(),
             new Pose2d());
 
-    LimelightHelpers.SetRobotOrientation("limelight", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    limelight = new Limelight("limelight", poseEstimator);
+
     poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 
     field = new Field2d();
@@ -90,21 +94,7 @@ public class Odometry extends Subsystem {
         Rotation2d.fromRotations(gyroscopeValues.yawRotations),
         swerveModulePositionsSupplier.get());
 
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-
-    boolean doRejectUpdate = false;
-
-    if (Math.abs(gyroscopeValues.yawVelocityRotations) > 720) {
-      doRejectUpdate = true;
-    }
-    if (mt2.tagCount == 0) {
-      doRejectUpdate = true;
-    }
-    if (!doRejectUpdate) {
-      poseEstimator.addVisionMeasurement(
-        mt2.pose, 
-        mt2.timestampSeconds);
-    }
+    limelight.update(gyroscopeValues);
 
     field.setRobotPose(getPosition());
   }
