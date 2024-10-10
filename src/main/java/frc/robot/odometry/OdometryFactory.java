@@ -30,7 +30,7 @@ public class OdometryFactory {
    * @return limelights wrapper
    */
   public static LimelightsIO createLimelights(String[] names, SwerveDrivePoseEstimator poseEstimator) {
-    if (Robot.isReal() && RobotConstants.REAL_SUBSYSTEMS.contains(Subsystem.ODOMETRY))
+    if (Robot.isReal() && RobotConstants.REAL_SUBSYSTEMS.contains(Subsystem.LIMELIGHT))
       return new Limelights(names, poseEstimator);
 
     return new LimelightsSim(names, poseEstimator);

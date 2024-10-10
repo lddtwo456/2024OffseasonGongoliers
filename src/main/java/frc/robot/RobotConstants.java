@@ -19,10 +19,11 @@ public class RobotConstants {
     ODOMETRY,
     SHOOTER,
     SWERVE,
+    LIMELIGHT,
   }
 
   /** Real subsystems. */
   public static final Set<Subsystem> REAL_SUBSYSTEMS =
       EnumSet.of(
-          Subsystem.ARM, Subsystem.INTAKE, Subsystem.ODOMETRY, Subsystem.SHOOTER, Subsystem.SWERVE);
+          Subsystem.ARM, Subsystem.INTAKE, Subsystem.ODOMETRY, Subsystem.SHOOTER, Subsystem.SWERVE, Subsystem.LIMELIGHT);
 }
