@@ -3,6 +3,7 @@ package frc.robot.swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -103,7 +104,7 @@ public class Swerve extends Subsystem {
             SwerveFactory.createSouthEastModuleTranslation(),
             SwerveFactory.createSouthWestModuleTranslation());
 
-    yawPIDController = new PIDController(1.0, 0, 0);
+    yawPIDController = new PIDController(6.0, 0, 0);
     yawPIDController.enableContinuousInput(-Math.PI, Math.PI);
     yawPIDController.setTolerance(Math.toRadians(2.0));
   }
@@ -351,9 +352,13 @@ public class Swerve extends Subsystem {
    * @return a command that sets the yaw setpoint of the swerve base to target the speaker
    */
   public Command targetSpeaker() {
-    return Commands.runOnce(
+    return Commands.run(
       () -> {
-        setYawSetpoint(0);
+        Pose2d currentPosition = Odometry.getInstance().getPosition();
+
+        double yawToSpeaker = Math.atan2((5.565 - currentPosition.getY()), (0 - currentPosition.getX()));
+
+        setYawSetpoint(yawToSpeaker);
       });
   }
 
