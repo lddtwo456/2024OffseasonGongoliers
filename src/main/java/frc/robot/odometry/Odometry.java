@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -17,6 +19,10 @@ import frc.lib.Subsystem;
 import frc.lib.Telemetry;
 import frc.lib.sensor.GyroscopeIO;
 import frc.lib.sensor.GyroscopeIO.GyroscopeIOValues;
+import frc.robot.odometry.limeilghts.LimelightsIO;
+import frc.robot.odometry.targetting.FieldTargetsSupplier;
+import frc.robot.odometry.targetting.FieldTargetsSupplierBlue;
+import frc.robot.odometry.targetting.FieldTargetsSupplierRed;
 import frc.robot.swerve.Swerve;
 import java.util.function.Supplier;
 
@@ -41,8 +47,11 @@ public class Odometry extends Subsystem {
   /** Pose estimator using the swerve drive. */
   private final SwerveDrivePoseEstimator poseEstimator;
 
-  /** Limelight (support multiple later) */
+  /** Limelight */
   private final LimelightsIO limelights;
+
+  /** Field target position/angle supplier */
+  private final FieldTargetsSupplier targetSupplier;
 
   /** Field. */
   private final Field2d field;
@@ -68,6 +77,12 @@ public class Odometry extends Subsystem {
     limelights = OdometryFactory.createLimelights(new String[] {"limelight"}, poseEstimator);
 
     poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+
+    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+      targetSupplier = new FieldTargetsSupplierBlue();
+    } else {
+      targetSupplier = new FieldTargetsSupplierRed();
+    }
 
     field = new Field2d();
   }
@@ -148,6 +163,15 @@ public class Odometry extends Subsystem {
    */
   public Rotation2d getDriverRelativeHeading() {
     return Rotation2d.fromRotations(gyroscopeValues.yawRotations);
+  }
+
+  /**
+   * Returns the angle to the alliance speaker
+   * 
+   * @return the angle to the alliance speaker
+   */
+  public double getYawToSpeaker() {
+    return targetSupplier.getYawToSpeaker(Odometry.getInstance().getPosition());
   }
 
   /**

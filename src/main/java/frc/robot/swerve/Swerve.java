@@ -354,11 +354,7 @@ public class Swerve extends Subsystem {
   public Command targetSpeaker() {
     return Commands.run(
       () -> {
-        Pose2d currentPosition = Odometry.getInstance().getPosition();
-
-        double yawToSpeaker = Math.atan2((5.565 - currentPosition.getY()), (0 - currentPosition.getX()));
-
-        setYawSetpoint(yawToSpeaker);
+        setYawSetpoint(Odometry.getInstance().getYawToSpeaker());
       });
   }
 
