@@ -1,6 +1,9 @@
 package frc.robot.swerve;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -10,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriveRequest;
 import frc.lib.Subsystem;
@@ -34,6 +38,10 @@ public class Swerve extends Subsystem {
 
   /** Swerve kinematics. */
   private final SwerveDriveKinematics swerveKinematics;
+
+  /** Swerve yaw PID controller */
+  private final PIDController yawPIDController;
+  private Double yawSetpoint = null;
 
   /** Steer motor config. */
   private final MechanismConfig steerConfig =
@@ -95,6 +103,10 @@ public class Swerve extends Subsystem {
             SwerveFactory.createNorthEastModuleTranslation(),
             SwerveFactory.createSouthEastModuleTranslation(),
             SwerveFactory.createSouthWestModuleTranslation());
+
+    yawPIDController = new PIDController(6.0, 0, 0);
+    yawPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    yawPIDController.setTolerance(Math.toRadians(2.0));
   }
 
   /**
@@ -240,6 +252,32 @@ public class Swerve extends Subsystem {
   public double driveRadius() {
     return SwerveFactory.createNorthEastModuleTranslation().getNorm();
   }
+  
+  /**
+   * Sets the robot's yaw setpoint
+   * 
+   * @param setpointRadians yaw setpoint in radians
+   */
+  public void setYawSetpoint(double setpointRadians) {
+    yawSetpoint = setpointRadians;
+  }
+
+  /**
+   * Clears the roboto's yaw setpoint
+   */
+  public void clearYawSetpoint() {
+    yawSetpoint = null;
+    yawPIDController.reset();
+  }
+
+  /**
+   * Returns if the swerve chassis is at the yaw setpoint
+   * 
+   * @return if the swerve chassis is at the yaw setpoint
+   */
+  public boolean atYawSetpoint() {
+    return yawSetpoint != null && yawPIDController.atSetpoint();
+  }
 
   /**
    * Drives the swerve using an Xbox controller.
@@ -268,11 +306,23 @@ public class Swerve extends Subsystem {
 
     final Function<DriveRequest, ChassisSpeeds> chassisSpeedsGetter =
         request -> {
+          double rotationVelocity;
+
+          if (yawSetpoint != null) {
+            double currentYaw = Odometry.getInstance().getFieldRelativeHeading().getRadians();
+            rotationVelocity = yawPIDController.calculate(currentYaw, yawSetpoint);
+            rotationVelocity = MathUtil.clamp(rotationVelocity,
+              -rotationMotionProfileConfig.maximumVelocity(),
+              rotationMotionProfileConfig.maximumVelocity());
+          } else {
+            rotationVelocity = request.rotationVelocityAxis()
+              * Units.rotationsToRadians(rotationMotionProfileConfig.maximumVelocity());
+          }
+
           return ChassisSpeeds.fromFieldRelativeSpeeds(
               request.translationAxis().getX() * translationMotionProfileConfig.maximumVelocity(),
               request.translationAxis().getY() * translationMotionProfileConfig.maximumVelocity(),
-              request.rotationVelocityAxis()
-                  * Units.rotationsToRadians(rotationMotionProfileConfig.maximumVelocity()),
+              rotationVelocity,
               Odometry.getInstance().getDriverRelativeHeading());
         };
 
@@ -282,6 +332,34 @@ public class Swerve extends Subsystem {
               chassisSpeedsLimiter.apply(
                   chassisSpeedsGetter.apply(DriveRequest.fromController(controller))));
         });
+  }
+
+  /**
+   * Stops all swerve base targeting
+   * 
+   * @return a command that stops all swerve base targeting
+   */
+  public Command stopTargeting() {
+    return Commands.runOnce(
+      () -> {
+        clearYawSetpoint();
+      });
+  }
+
+  /**
+   * Sets yaw setpoint of swerve base to target the speaker
+   * 
+   * @return a command that sets the yaw setpoint of the swerve base to target the speaker
+   */
+  public Command targetSpeaker() {
+    return Commands.run(
+      () -> {
+        Pose2d currentPosition = Odometry.getInstance().getPosition();
+
+        double yawToSpeaker = Math.atan2((5.565 - currentPosition.getY()), (0 - currentPosition.getX()));
+
+        setYawSetpoint(yawToSpeaker);
+      });
   }
 
   /**
