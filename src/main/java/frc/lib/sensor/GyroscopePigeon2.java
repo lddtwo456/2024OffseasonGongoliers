@@ -1,0 +1,55 @@
+package frc.lib.sensor;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.math.util.Units;
+
+/** Pigeon 2 gyroscope */
+public class GyroscopePigeon2 implements GyroscopeIO {
+
+  /** Pigeon 2 */
+  private final Pigeon2 gyroscope;
+  
+  /** PIgeon 2 status signals */
+  private final StatusSignal<Double> roll, pitch, yaw, rollVelocity, pitchVelocity, yawVelocity;
+
+  public GyroscopePigeon2() {
+    // TODO: figure out how you name canbuses
+    gyroscope = new Pigeon2(0, "CANivore");
+
+    roll = gyroscope.getRoll();
+    pitch = gyroscope.getPitch();
+    yaw = gyroscope.getYaw();
+
+    rollVelocity = gyroscope.getAngularVelocityXWorld();
+    pitchVelocity = gyroscope.getAngularVelocityYWorld();
+    yawVelocity = gyroscope.getAngularVelocityZWorld();
+  }
+
+  @Override
+  public void configure() {
+    gyroscope.getConfigurator()
+      .apply(new Pigeon2Configuration());
+  }
+
+  @Override
+  public void update(GyroscopeIOValues values) {
+    BaseStatusSignal.refreshAll(roll, pitch, yaw, rollVelocity, pitchVelocity, yawVelocity);
+
+    values.rollRotations = Units.degreesToRotations(roll.getValue());
+    values.pitchRotations = Units.degreesToRotations(pitch.getValue());
+    values.yawRotations = Units.degreesToRotations(yaw.getValue());
+
+    values.rollVelocityRotations = Units.degreesToRotations(rollVelocity.getValue());
+    values.pitchVelocityRotations = Units.degreesToRotations(pitchVelocity.getValue());
+    values.yawVelocityRotations = Units.degreesToRotations(yawVelocity.getValue());
+  }
+
+  @Override
+  public void setYaw(double yawRotations) {
+    gyroscope.setYaw(Units.rotationsToDegrees(yawRotations));
+  }
+}

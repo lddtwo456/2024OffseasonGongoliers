@@ -10,7 +10,7 @@ public interface GyroscopeIO {
     public double pitchRotations = 0.0;
 
     /** Yaw angle in rotations */
-    public double yawRotatoins = 0.0;
+    public double yawRotations = 0.0;
 
     /** Roll velocity in rotations */
     public double rollVelocityRotations = 0.0;
