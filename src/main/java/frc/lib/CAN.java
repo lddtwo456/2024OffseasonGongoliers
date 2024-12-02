@@ -25,4 +25,3 @@ public record CAN(int id, String bus) {
     this(id, "");
   }
 }
-}
