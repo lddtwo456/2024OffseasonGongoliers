@@ -9,9 +9,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 import frc.lib.CAN;
+import frc.lib.configs.MechanismConfig;
 
 /** TalonFX used as a position controller */
 public class PositionControllerTalonFXSteer implements PositionController {
+
+  private final MechanismConfig config;
 
   private final TalonFX motor;
 
@@ -28,7 +31,10 @@ public class PositionControllerTalonFXSteer implements PositionController {
   public PositionControllerTalonFXSteer(
       CAN steerCAN,
       CAN encoderCAN,
+      MechanismConfig config,
       boolean enableFOC) {
+
+    this.config = config;
         
     motor = new TalonFX(steerCAN.id(), steerCAN.bus());
 
@@ -42,7 +48,9 @@ public class PositionControllerTalonFXSteer implements PositionController {
     volts = motor.getMotorVoltage();
     amps = motor.getStatorCurrent();
 
-    
+    feedforward = config.feedforwardControllerConfig().createSimpleMotorFeedforward();
+
+    feedback = config.feedbackControllerConfig().createPIDController();
 
     voltage = new VoltageOut(0.0).withEnableFOC(enableFOC);
   }
