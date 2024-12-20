@@ -68,7 +68,7 @@ public class Swerve extends SubsystemBase {
           .kP(0.75)
           .build())
       .build();
-      
+
   /** Wheel circumference */
   private final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
 
@@ -82,6 +82,90 @@ public class Swerve extends SubsystemBase {
   
   /** Initializes the swerve subsystem and configures swerve hardware */
   private Swerve() {
-    
+    swerves[0] =
+      SwerveFactory.createNorthWestModule(steerConfig, driveConfig, wheelCircumference);
+    swerves[1] =
+      SwerveFactory.createNorthEastModule(steerConfig, driveConfig, wheelCircumference);
+    swerves[2] =
+      SwerveFactory.createSouthEastModule(steerConfig, driveConfig, wheelCircumference);
+    swerves[3] =
+      SwerveFactory.createSouthWestModule(steerConfig, driveConfig, wheelCircumference);
+
+    swerveKinematics = 
+      new SwerveDriveKinematics(
+        SwerveFactory.getNorthWestModuleTranslation(),
+        SwerveFactory.getNorthEastModuleTranslation(),
+        SwerveFactory.getSouthEastModuleTranslation(),
+        SwerveFactory.getSouthWestModuleTranslation());
+  }
+
+  /** 
+   * Returns the swerve subsystem instance, creates a new instance if instance is null (singleton)
+   * 
+   * @return the swerve subsystem instance
+   */
+  public static Swerve getInstance() {
+    if (instance == null) {
+      instance = new Swerve();
+    }
+
+    return instance;
+  }
+
+  @Override
+  public void periodic() {}
+
+  /**
+   * Returns swerve kinematics
+   * 
+   * @return swerve kinematics
+   */
+  public SwerveDriveKinematics getKinematics() {
+    return swerveKinematics;
+  }
+
+  /**
+   * Returns the module states
+   * 
+   * @return the module states
+   */
+  public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+
+    for (int i = 0; i < 4; i++) {
+      moduleStates[i] = swerves[i].getState();
+    }
+
+    return moduleStates;
+  }
+
+  /**
+   * Returns the module setpoints
+   * 
+   * @return the module setpoints
+   */
+  public SwerveModuleState[] getModuleSetpoints() {
+    SwerveModuleState[] moduleSetpoints = new SwerveModuleState[4];
+
+    for (int i = 0; i < 4; i++) {
+      moduleSetpoints[i] = swerves[i].getSetpoint();
+    }
+
+    return moduleSetpoints;
+  }
+
+  /**
+   * Returns the module positions
+   * 
+   * @return the module positions
+   */
+  public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+
+    for (int i = 0; i < 4; i++) {
+      modulePositions[i] = swerves[i].getPosition();
+    }
+
+    return modulePositions;
   }
 }
