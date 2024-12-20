@@ -1,10 +1,10 @@
-package frc.lib.controllers.position;
+package frc.lib.controllers.velocity;
 
-/** Interface for motor controller used as position control */
-public interface PositionController {
-
-  /** Position controller values */
-  public static class PositionControllerValues {
+/** Interface for motor controller used as velocity control */
+public interface VelocityController {
+  
+  /** Velocity controller values */
+  public static class VelocityControllerValues {
 
     /** Current position in rotations */
     public double posRotations = 0.0;
@@ -21,18 +21,18 @@ public interface PositionController {
     /** Current current */
     public double motorAmps = 0.0;
   }
-
+  
   /**
-   * Configures the position controller
+   * Configures the velocity controller
    */
   public void configure();
 
   /**
-   * Get the position controller's updated values
+   * Get the velocity controller's updated values
    * 
    * @param values values class to be updated
    */
-  public void getUpdatedVals(PositionControllerValues values);
+  public void getUpdatedVals(VelocityControllerValues values);
 
   /**
    * Sets the position of the controller
@@ -42,10 +42,9 @@ public interface PositionController {
   public void setPos(double posRotations);
 
   /**
-   * Sets the setpoint (target position and velocity) of the controller
-   * 
-   * @param posRotations position in rotations
-   * @param velRotationsPerSec velocity in rotations per second
+   * Sets the target velocity of the controller
+   *  
+   * @param velRotationsPerSec
    */
-  public void setSetpoint(double posRotations, double velRotationsPerSec);
+  public void setSetpoint(double velRotationsPerSec);
 }
