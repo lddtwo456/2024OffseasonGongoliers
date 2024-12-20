@@ -1,4 +1,4 @@
-package frc.lib.controllers;
+package frc.lib.controllers.positionControllers;
 
 /** Interface for motor controller used as position control */
 public interface PositionController {
@@ -28,11 +28,11 @@ public interface PositionController {
   public void configure();
 
   /**
-   * Updates the position controller's values
+   * Get the position controller's updated values
    * 
    * @param values new values
    */
-  public void update(PositionControllerValues values);
+  public void getUpdatedVals(PositionControllerValues values);
 
   /**
    * Sets the position of the controller

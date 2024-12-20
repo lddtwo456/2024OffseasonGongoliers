@@ -1,5 +1,6 @@
-package frc.lib.controllers;
+package frc.lib.controllers.position;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -35,34 +36,39 @@ public class PositionControllerTalonFXSteer implements PositionController {
       boolean enableFOC) {
 
     this.config = config;
-        
+    
+    // create hardware
     motor = new TalonFX(steerCAN.id(), steerCAN.bus());
-
     azimuthEncoder = new CANcoder(encoderCAN.id(), encoderCAN.bus());
-
+      
+    // status signals
     position = azimuthEncoder.getAbsolutePosition();
-
     velocity = motor.getVelocity();
     acceleration = motor.getAcceleration();
-
     volts = motor.getMotorVoltage();
     amps = motor.getStatorCurrent();
-
+    
+    // create feedforward and feedback based on config
     feedforward = config.feedforwardControllerConfig().createSimpleMotorFeedforward();
-
     feedback = config.feedbackControllerConfig().createPIDController();
-
+    
+    // default voltage
     voltage = new VoltageOut(0.0).withEnableFOC(enableFOC);
   }
 
   @Override
   public void configure() {
-
+    BaseStatusSignal.setUpdateFrequencyForAll(100, position, velocity, acceleration);
+    BaseStatusSignal.setUpdateFrequencyForAll(10, volts, amps);
   }
 
   @Override
-  public void update(PositionControllerValues values) {
-
+  public void getUpdatedVals(PositionControllerValues values) {
+    values.posRotations = position.getValue();
+    values.velRotationsPerSec = velocity.getValue();
+    values.accRotationsPerSecPerSec = acceleration.getValue();
+    values.motorVolts = volts.getValue();
+    values.motorAmps = amps.getValue();
   }
 
   @Override
