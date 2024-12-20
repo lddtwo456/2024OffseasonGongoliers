@@ -1,10 +1,17 @@
 package frc.robot.swerve;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
-
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.DriveRequest;
 import frc.lib.configs.FeedbackControllerConfig;
 import frc.lib.configs.FeedforwardControllerConfig;
 import frc.lib.configs.MechanismConfig;
@@ -14,6 +21,10 @@ import frc.lib.configs.FeedbackControllerConfig.FeedbackControllerBuilder;
 import frc.lib.configs.FeedforwardControllerConfig.FeedforwardControllerBuilder;
 import frc.lib.configs.MechanismConfig.MechanismBuilder;
 import frc.lib.configs.MotorConfig.MotorBuilder;
+import frc.lib.controllers.swerve.SwerveModule;
+import frc.robot.RobotConstants;
+
+import java.util.function.Function;
 
 /** Swerve subsystem */
 public class Swerve extends SubsystemBase {
@@ -167,5 +178,114 @@ public class Swerve extends SubsystemBase {
     }
 
     return modulePositions;
+  }
+
+  /**
+   * Returns the chassis speeds
+   * 
+   * @return the chassis speeds
+   */
+  public ChassisSpeeds getChassisSpeeds() {
+    return swerveKinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /**
+   * Sets module setpoints given desired chassis speeds
+   * 
+   * @param speeds chassis speeds
+   */
+  public void setChassisSpeeds(ChassisSpeeds speeds) {
+    speeds = ChassisSpeeds.discretize(speeds, RobotConstants.PERIODIC_DURATION);
+
+    SwerveModuleState[] setpoints = swerveKinematics.toSwerveModuleStates(speeds);
+
+    setSetpoints(setpoints, true);
+  }
+
+  /**
+   * Sets the swerve module setpoints
+   * 
+   * @param setpoints setpoints
+   * @param lazy if true, optimizes the module setpoints
+   */
+  public void setSetpoints(SwerveModuleState[] setpoints, boolean lazy) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(setpoints, maximumTranslationVelocity());
+
+    for (int i = 0; i < 4; i++) {
+      swerves[i].setSetpoint(setpoints[i], lazy);
+    }
+  }
+
+  /**
+   * Returns the maximum translation velocity
+   * 
+   * @return the maximum translation velocity
+   */
+  public double maximumTranslationVelocity() {
+    return translationMotionProfileConfig.maxVelocity();
+  }
+
+  /**
+   * Returns the drive radius (distance to furthest swerve module)
+   * 
+   * @return the drive radius (distance to furthest swerve module)
+   */
+  public double driveRadius() {
+    return SwerveFactory.getNorthEastModuleTranslation().getNorm();
+  }
+
+  /**
+   * Drives the swerve using an xbox controller
+   * 
+   * @param controller xbox controller
+   * @return a command that drives the swerve using an xbox controller
+   */
+  public Command teleopDrive(CommandXboxController controller) {
+    // create slew rate limiters for x and y acceleration
+    final SlewRateLimiter xAccelerationLimiter =
+      translationMotionProfileConfig.createAccelerationLimiter();
+    final SlewRateLimiter yAccelerationLimiter =
+      translationMotionProfileConfig.createAccelerationLimiter();
+
+    // create a velocity clamping function from the rotation motion profile
+    final Function<Double, Double> rotationVelocityLimiter =
+      rotationMotionProfileConfig.createVelocityClamper();
+
+    /**
+     * General chassis speed limiting function
+     * Takes a ChassisSpeeds object as imput, applies the acceleration and velocity clamping functions from earlier, and returns a new ChassisSpeeds object
+     * 
+     * Function<input_type, return_type> function_name = lambda_input -> { things done to things and returns something of typoe return_type };
+     * return_type output = function_name.apply(lambda_input);
+     */
+    final Function<ChassisSpeeds, ChassisSpeeds> chassisSpeedsLimiter =
+      chassisSpeeds -> {
+        return new ChassisSpeeds(
+          xAccelerationLimiter.calculate(chassisSpeeds.vxMetersPerSecond),
+          yAccelerationLimiter.calculate(chassisSpeeds.vyMetersPerSecond),
+          Units.rotationsToRadians(
+            rotationVelocityLimiter.apply(
+              Units.radiansToRotations(chassisSpeeds.omegaRadiansPerSecond))));
+      };
+
+    final Function<DriveRequest, ChassisSpeeds> chassisSpeedsGetter =
+      request -> {
+        double rotationVelocity;
+
+        rotationVelocity = request.rotationVelocityAxis() * Units.rotationsToRadians(rotationMotionProfileConfig.maxVelocity());
+
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+          request.translationAxis().getX() * translationMotionProfileConfig.maxVelocity(),
+          request.translationAxis().getY() * translationMotionProfileConfig.maxVelocity(),
+          rotationVelocity,
+          Odometry.getInstance().getDriverRelativeHeading());
+      };
+
+    return run(
+      () -> {
+        setChassisSpeeds(
+          chassisSpeedsLimiter.apply(
+            chassisSpeedsGetter.apply(DriveRequest.fromController(controller))));
+      });
   }
 }
