@@ -52,6 +52,15 @@ public record MechanismConfig(
         MotorBuilder.defaults().build());
     }
 
+    public static MechanismBuilder edit(MechanismConfig config) {
+      return new MechanismBuilder(
+        config.absoluteEncoderConfig(), 
+        config.feedbackControllerConfig(), 
+        config.feedforwardControllerConfig(), 
+        config.motionProfileConfig(), 
+        config.motorConfig());
+    }
+
     public MechanismBuilder absoluteEncoderConfig(AbsoluteEncoderConfig absoluteEncoderConfig) {
       this.absoluteEncoderConfig = absoluteEncoderConfig;
       return this;

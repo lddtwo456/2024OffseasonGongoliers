@@ -10,7 +10,6 @@ import frc.lib.configs.FeedforwardControllerConfig;
 import frc.lib.configs.MechanismConfig;
 import frc.lib.configs.MotionProfileConfig;
 import frc.lib.configs.MotorConfig;
-import frc.lib.configs.SimpleMechanismConfigBuilder;
 import frc.lib.configs.FeedbackControllerConfig.FeedbackControllerBuilder;
 import frc.lib.configs.FeedforwardControllerConfig.FeedforwardControllerBuilder;
 import frc.lib.configs.MechanismConfig.MechanismBuilder;

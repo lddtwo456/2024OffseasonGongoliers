@@ -75,6 +75,12 @@ public record MotionProfileConfig(
         0.0);
     }
 
+    public static MotionProfileBuilder edit(MotionProfileConfig config) {
+      return new MotionProfileBuilder(
+        config.maxVelocity(), 
+        config.maxAcceleration());
+    }
+
     public MotionProfileBuilder maxVelocity(double maxVelocity) {
       this.maxVelocity = maxVelocity;
       return this;

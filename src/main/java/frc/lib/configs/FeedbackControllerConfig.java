@@ -71,6 +71,16 @@ public record FeedbackControllerConfig(
         0.0);
     }
 
+    public static FeedbackControllerBuilder edit(FeedbackControllerConfig config) {
+      return new FeedbackControllerBuilder(
+        config.kP(), 
+        config.kI(), 
+        config.kD(), 
+        config.continuous(), 
+        config.tolerance(), 
+        config.rateTolerance());
+    }
+
     public FeedbackControllerBuilder kP(double kP) {
       this.kP = kP;
       return this;

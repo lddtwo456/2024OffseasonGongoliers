@@ -36,6 +36,13 @@ public record AbsoluteEncoderConfig(
         new Rotation2d());
     }
 
+    public static AbsoluteEncoderBuilder edit(AbsoluteEncoderConfig config) {
+      return new AbsoluteEncoderBuilder(
+        config.ccwPositive(), 
+        config.sensorToMechRatio(), 
+        config.offset());
+    }
+
     public AbsoluteEncoderBuilder ccwPositive(boolean ccwPositive) {
       this.ccwPositive = ccwPositive;
       return this;
