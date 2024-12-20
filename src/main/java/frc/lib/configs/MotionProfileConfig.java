@@ -69,12 +69,23 @@ public record MotionProfileConfig(
       this.maxAcceleration = maxAcceleration;
     }
 
+    /** 
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static MotionProfileBuilder defaults() {
       return new MotionProfileBuilder(
         0.0, 
         0.0);
     }
 
+    /**
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
     public static MotionProfileBuilder edit(MotionProfileConfig config) {
       return new MotionProfileBuilder(
         config.maxVelocity(), 
@@ -91,6 +102,11 @@ public record MotionProfileConfig(
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public MotionProfileConfig build() {
       return new MotionProfileConfig(
         this.maxVelocity,

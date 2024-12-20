@@ -39,6 +39,11 @@ public record MotorConfig(
       this.supplyCurrentLimit = supplyCurrentLimit;
     }
 
+    /**
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static MotorBuilder defaults() {
       return new MotorBuilder(
         false, 
@@ -46,6 +51,21 @@ public record MotorConfig(
         1.0, 
         80.0, 
         40.0);
+    }
+
+    /**
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
+    public static MotorBuilder edit(MotorConfig config) {
+      return new MotorBuilder(
+        config.neutralBrake(), 
+        config.ccwPositive(), 
+        config.motorToMechRatio(), 
+        config.statorCurrentLimit(), 
+        config.supplyCurrentLimit());
     }
 
     public MotorBuilder neutralBrake(boolean neutralBrake) {
@@ -73,6 +93,11 @@ public record MotorConfig(
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public MotorConfig build() {
       return new MotorConfig(
         this.neutralBrake,

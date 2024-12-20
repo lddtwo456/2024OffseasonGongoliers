@@ -43,6 +43,11 @@ public record MechanismConfig(
       this.motorConfig = motorConfig;
     }
 
+    /**
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static MechanismBuilder defaults() {
       return new MechanismBuilder(
         AbsoluteEncoderBuilder.defaults().build(),
@@ -52,6 +57,12 @@ public record MechanismConfig(
         MotorBuilder.defaults().build());
     }
 
+    /**
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
     public static MechanismBuilder edit(MechanismConfig config) {
       return new MechanismBuilder(
         config.absoluteEncoderConfig(), 
@@ -86,6 +97,11 @@ public record MechanismConfig(
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public MechanismConfig build() {
       return new MechanismConfig(
         this.absoluteEncoderConfig, 

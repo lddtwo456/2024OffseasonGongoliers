@@ -61,6 +61,11 @@ public record FeedbackControllerConfig(
       this.rateTolerance = rateTolerance;
     }
 
+    /** 
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static FeedbackControllerBuilder defaults() {
       return new FeedbackControllerBuilder(
         0.0, 
@@ -71,6 +76,12 @@ public record FeedbackControllerConfig(
         0.0);
     }
 
+    /** 
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
     public static FeedbackControllerBuilder edit(FeedbackControllerConfig config) {
       return new FeedbackControllerBuilder(
         config.kP(), 
@@ -111,6 +122,11 @@ public record FeedbackControllerConfig(
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public FeedbackControllerConfig build() {
       return new FeedbackControllerConfig(
         this.kP, 

@@ -63,7 +63,12 @@ public record FeedforwardControllerConfig(
       this.kV = kV;
       this.kA = kA;
     }
-
+    
+    /**
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static FeedforwardControllerBuilder defaults() {
       return new FeedforwardControllerBuilder(
         0.0,
@@ -72,6 +77,12 @@ public record FeedforwardControllerConfig(
         0.0);
     }
 
+    /**
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
     public static FeedforwardControllerBuilder edit(FeedforwardControllerConfig config) {
       return new FeedforwardControllerBuilder(
         config.kS(), 
@@ -100,12 +111,17 @@ public record FeedforwardControllerConfig(
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public FeedforwardControllerConfig build() {
       return new FeedforwardControllerConfig(
-        0.0,
-        0.0,
-        0.0,
-        0.0);
+        this.kS,
+        this.kG,
+        this.kV,
+        this.kA);
     }
   }
 }

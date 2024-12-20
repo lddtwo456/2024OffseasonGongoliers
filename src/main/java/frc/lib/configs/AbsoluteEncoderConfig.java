@@ -29,6 +29,11 @@ public record AbsoluteEncoderConfig(
       this.offset = offset;
     }
 
+    /** 
+     * Returns a builder with default values
+     * 
+     * @return a builder with default values
+     */
     public static AbsoluteEncoderBuilder defaults() {
       return new AbsoluteEncoderBuilder(
         true, 
@@ -36,6 +41,12 @@ public record AbsoluteEncoderConfig(
         new Rotation2d());
     }
 
+    /** 
+     * Returns a builder with values copied from the input config
+     * 
+     * @param config config to be copied
+     * @return a builder with values copied from the input config
+     */
     public static AbsoluteEncoderBuilder edit(AbsoluteEncoderConfig config) {
       return new AbsoluteEncoderBuilder(
         config.ccwPositive(), 
@@ -54,10 +65,15 @@ public record AbsoluteEncoderConfig(
     }
 
     public AbsoluteEncoderBuilder offset(Rotation2d offset) {
-      this.offset =offset;
+      this.offset = offset;
       return this;
     }
 
+    /**
+     * Returns the builder as a config with private immutable values
+     * 
+     * @return the builder as a config with private immutable values
+     */
     public AbsoluteEncoderConfig build() {
       return new AbsoluteEncoderConfig(
         this.ccwPositive,
