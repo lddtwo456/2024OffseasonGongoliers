@@ -16,10 +16,60 @@ public record FeedforwardControllerConfig(
     double kG,
     double kV,
     double kA) {
-  
-  /** Construct default config */
-  public FeedforwardControllerConfig() {
-    this(0.0, 0.0, 0.0, 0.0);
+
+  /** Easier and more modular way to construct feedforward controller configs */
+  public static class FeedforwardControllerBuilder {
+    private double kS;
+    private double kG;
+    private double kV;
+    private double kA;
+
+    private FeedforwardControllerBuilder(
+        double kS,
+        double kG,
+        double kV,
+        double kA) {
+      this.kS = kS;
+      this.kG = kG;
+      this.kV = kV;
+      this.kA = kA;
+    }
+
+    public static FeedforwardControllerBuilder defaults() {
+      return new FeedforwardControllerBuilder(
+        0.0,
+        0.0,
+        0.0,
+        0.0);
+    }
+
+    public FeedforwardControllerBuilder kS(double kS) {
+      this.kS = kS;
+      return this;
+    }
+
+    public FeedforwardControllerBuilder kG(double kG) {
+      this.kG = kG;
+      return this;
+    }
+
+    public FeedforwardControllerBuilder kV(double kV) {
+      this.kV = kV;
+      return this;
+    }
+
+    public FeedforwardControllerBuilder kA(double kA) {
+      this.kA = kA;
+      return this;
+    }
+
+    public FeedforwardControllerConfig build() {
+      return new FeedforwardControllerConfig(
+        0.0,
+        0.0,
+        0.0,
+        0.0);
+    }
   }
 
   /**

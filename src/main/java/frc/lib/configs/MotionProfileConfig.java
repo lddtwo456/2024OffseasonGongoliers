@@ -16,11 +16,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 public record MotionProfileConfig(
     double maxVelocity,
     double maxAcceleration) {
-  
-  /** Construct default config */
-  public MotionProfileConfig() {
-    this(0.0, 0.0);
-  }
 
   /**
    * Calculates an acceleration using a ramp duration
@@ -60,5 +55,40 @@ public record MotionProfileConfig(
    */
   public TrapezoidProfile createTrapezoidProfile() {
     return new TrapezoidProfile(new Constraints(maxVelocity, maxAcceleration));
+  }
+
+  /** Easier and more modular way to construct motion profile configs */
+  public static class MotionProfileBuilder {
+    private double maxVelocity;
+    private double maxAcceleration;
+
+    private MotionProfileBuilder(
+        double maxVelocity,
+        double maxAcceleration) {
+      this.maxVelocity = maxVelocity;
+      this.maxAcceleration = maxAcceleration;
+    }
+
+    public static MotionProfileBuilder defaults() {
+      return new MotionProfileBuilder(
+        0.0, 
+        0.0);
+    }
+
+    public MotionProfileBuilder maxVelocity(double maxVelocity) {
+      this.maxVelocity = maxVelocity;
+      return this;
+    }
+
+    public MotionProfileBuilder maxAcceleration(double maxAcceleration) {
+      this.maxAcceleration = maxAcceleration;
+      return this;
+    }
+
+    public MotionProfileConfig build() {
+      return new MotionProfileConfig(
+        this.maxVelocity,
+        this.maxAcceleration);
+    }
   }
 }
