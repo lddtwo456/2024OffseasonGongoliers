@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.configs.FeedbackControllerConfig;
 import frc.lib.configs.FeedforwardControllerConfig;
 import frc.lib.configs.MechanismConfig;
+import frc.lib.configs.MotionProfileConfig;
 import frc.lib.configs.MotorConfig;
 import frc.lib.configs.SimpleMechanismConfigBuilder;
 
@@ -44,4 +45,20 @@ public class Swerve extends SubsystemBase {
       .withFeedbackControllerConfig(
         new FeedbackControllerConfig(0.75, 0.0, 0.0, false, 0.0, 0.0))
       .build();
+
+  /** Wheel circumference */
+  private final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
+
+  /** Translation motion profile config */
+  private final MotionProfileConfig translationMotionProfileConfig =
+    new MotionProfileConfig(4.5, 18);
+
+  /** Rotation motion profile config */
+  private final MotionProfileConfig rotationMotionProfileConfig =
+    new MotionProfileConfig(1.0, 0.0);
+  
+  /** Initializes the swerve subsystem and configures swerve hardware */
+  private Swerve() {
+    
+  }
 }

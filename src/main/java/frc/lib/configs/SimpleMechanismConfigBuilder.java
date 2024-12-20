@@ -35,24 +35,29 @@ public class SimpleMechanismConfigBuilder {
       new MotorConfig());
   }
 
-  public void withAbsoluteEncoderConfig(AbsoluteEncoderConfig config) {
+  public SimpleMechanismConfigBuilder withAbsoluteEncoderConfig(AbsoluteEncoderConfig config) {
     this.absoluteEncoderConfig = config;
+    return this;
   }
 
-  public void withFeedbackControllerConfig(FeedbackControllerConfig config) {
+  public SimpleMechanismConfigBuilder withFeedbackControllerConfig(FeedbackControllerConfig config) {
     this.feedbackControllerConfig = config;
+    return this;
   }
 
-  public void withFeedforwardControllerConfig(FeedforwardControllerConfig config) {
+  public SimpleMechanismConfigBuilder withFeedforwardControllerConfig(FeedforwardControllerConfig config) {
     this.feedforwardControllerConfig = config;
+    return this;
   }
 
-  public void withMotionProfileConfig(MotionProfileConfig config) {
+  public SimpleMechanismConfigBuilder withMotionProfileConfig(MotionProfileConfig config) {
     this.motionProfileConfig = config;
+    return this;
   }
 
-  public void withMotorConfig(MotorConfig config) {
+  public SimpleMechanismConfigBuilder withMotorConfig(MotorConfig config) {
     this.motorConfig = config;
+    return this;
   }
 
   public MechanismConfig build() {
