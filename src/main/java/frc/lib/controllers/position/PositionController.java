@@ -1,4 +1,4 @@
-package frc.lib.controllers.positionControllers;
+package frc.lib.controllers.position;
 
 /** Interface for motor controller used as position control */
 public interface PositionController {

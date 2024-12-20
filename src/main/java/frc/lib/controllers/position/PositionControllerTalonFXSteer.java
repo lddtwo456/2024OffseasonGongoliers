@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -11,6 +12,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 import frc.lib.CAN;
 import frc.lib.configs.MechanismConfig;
+import frc.lib.configs.appliers.CANcoderConfigApplier;
+import frc.lib.configs.appliers.TalonFXConfigApplier;
 
 /** TalonFX used as a position controller */
 public class PositionControllerTalonFXSteer implements PositionController {
@@ -60,6 +63,14 @@ public class PositionControllerTalonFXSteer implements PositionController {
   public void configure() {
     BaseStatusSignal.setUpdateFrequencyForAll(100, position, velocity, acceleration);
     BaseStatusSignal.setUpdateFrequencyForAll(10, volts, amps);
+
+    ParentDevice.optimizeBusUtilizationForAll(motor, azimuthEncoder);
+
+    TalonFXConfigApplier.applyFactoryDefault(motor);
+    TalonFXConfigApplier.apply(motor, config.motorConfig());
+
+    CANcoderConfigApplier.applyFactoryDefault(azimuthEncoder);
+    CANcoderConfigApplier.apply(azimuthEncoder, config.absoluteEncoderConfig());
   }
 
   @Override
@@ -72,12 +83,28 @@ public class PositionControllerTalonFXSteer implements PositionController {
   }
 
   @Override
-  public void setPos(double posRotations) {
-
-  }
+  public void setPos(double posRotations) {}
 
   @Override
   public void setSetpoint(double posRotations, double velRotationsPerSec) {
+    double measuredPosRotations = position.getValue();
 
+    double feedforwardVolts = calculateFeedforward(measuredPosRotations, posRotations);
+
+    double feedbackVolts = feedback.calculate(measuredPosRotations, posRotations);
+
+    motor.setControl(voltage.withOutput(feedforwardVolts + feedbackVolts));
+  }
+
+  private double calculateFeedforward(double measurementRotations, double setpointRotations) {
+    if (feedback.atSetpoint() == false) {
+      if (measurementRotations > setpointRotations) {
+        return feedforward.ks;
+      } else {
+        return -feedforward.ks;
+      }
+    }
+
+    return 0.0;
   }
 }
