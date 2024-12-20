@@ -5,7 +5,10 @@ import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import edu.wpi.first.wpilibj.DriverStation;
+
+import frc.lib.configs.AbsoluteEncoderConfig;
 
 /** Applies CANcoder configs. */
 public class CANcoderConfigApplier extends ConfigApplier {
