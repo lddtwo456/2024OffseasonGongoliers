@@ -8,7 +8,7 @@ import frc.lib.controllers.position.PositionController.PositionControllerValues;
 import frc.lib.controllers.velocity.VelocityController;
 import frc.lib.controllers.velocity.VelocityController.VelocityControllerValues;
 
-/** Swerve module using TalonFX motor controllers, and CANcoder encoders */
+/** Swerve module using TalonFX motor controllers, and CANcoder azimuth encoders */
 public class SwerveModuleTalonFXCANcoder implements SwerveModule {
   
   /** Steer motor */
