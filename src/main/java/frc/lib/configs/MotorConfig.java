@@ -1,7 +1,5 @@
 package frc.lib.configs;
 
-import java.time.format.FormatStyle;
-
 /** 
  * Motor config
  * 

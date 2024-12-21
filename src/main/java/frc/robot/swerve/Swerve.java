@@ -1,8 +1,6 @@
 package frc.robot.swerve;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -12,17 +10,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriveRequest;
-import frc.lib.configs.FeedbackControllerConfig;
-import frc.lib.configs.FeedforwardControllerConfig;
 import frc.lib.configs.MechanismConfig;
 import frc.lib.configs.MotionProfileConfig;
-import frc.lib.configs.MotorConfig;
 import frc.lib.configs.FeedbackControllerConfig.FeedbackControllerBuilder;
 import frc.lib.configs.FeedforwardControllerConfig.FeedforwardControllerBuilder;
 import frc.lib.configs.MechanismConfig.MechanismBuilder;
 import frc.lib.configs.MotorConfig.MotorBuilder;
 import frc.lib.controllers.swerve.SwerveModule;
 import frc.robot.RobotConstants;
+import frc.robot.odometry.Odometry;
 
 import java.util.function.Function;
 
