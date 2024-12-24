@@ -17,8 +17,6 @@ public class Telemetry extends SubsystemBase {
   private ArrayList<Runnable> even_updaters = new ArrayList<Runnable>();
   private ArrayList<Runnable> odd_updaters = new ArrayList<Runnable>();
 
-  private int staggerer = 1;
-
   private int periodic_loop = 1;
 
   private Telemetry() {
@@ -57,34 +55,23 @@ public class Telemetry extends SubsystemBase {
   }
 
   public void addDouble(String name, Supplier<Double> supplier) {
-    staggerer ^= 1;
-
-    if (staggerer == 0) {
-      even_updaters.add(
-        () -> {
-          doubles.put(name, supplier.get());
-        });
-    } else {
-      odd_updaters.add(
-        () -> {
-          doubles.put(name, supplier.get());
-        });
-    }
+    even_updaters.add(
+      () -> {
+        doubles.put(name, supplier.get());
+      });
   }
 
   public void addBool(String name, Supplier<Boolean> supplier) {
-    staggerer ^= 1;
+    even_updaters.add(
+      () -> {
+        bools.put(name, supplier.get());
+      });
+  }
 
-    if (staggerer == 0) {
-      even_updaters.add(
-        () -> {
-          bools.put(name, supplier.get());
-        });
-    } else {
-      odd_updaters.add(
-        () -> {
-          bools.put(name, supplier.get());
-        });
-    }
+  public void staggerUpdaters() {
+    int split_index = even_updaters.size() / 2;
+
+    odd_updaters = new ArrayList<Runnable>(even_updaters.subList(split_index, even_updaters.size()));
+    even_updaters = new ArrayList<Runnable>(even_updaters.subList(0, split_index));
   }
 }
