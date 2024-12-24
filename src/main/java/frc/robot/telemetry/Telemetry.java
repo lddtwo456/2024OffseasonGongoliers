@@ -1,0 +1,90 @@
+package frc.robot.telemetry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Supplier;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+/** Telemetry with shuffleboard */
+public class Telemetry extends SubsystemBase {
+  
+  private Telemetry instance = null;
+
+  private HashMap<String, Double> doubles = new HashMap<String, Double>();
+  private HashMap<String, Boolean> bools = new HashMap<String, Boolean>();
+
+  private ArrayList<Runnable> even_updaters = new ArrayList<Runnable>();
+  private ArrayList<Runnable> odd_updaters = new ArrayList<Runnable>();
+
+  private int staggerer = 1;
+
+  private int periodic_loop = 1;
+
+  private Telemetry() {
+    
+  }
+
+  public Telemetry getInstance() {
+    if (instance == null) {
+      instance = new Telemetry();
+    }
+
+    return instance;
+  }
+
+  @Override
+  public void periodic() {
+    periodic_loop ^= 1;
+
+    if (periodic_loop == 0) {
+      for (Runnable runnable : even_updaters) {
+        runnable.run();
+      }
+    } else {
+      for (Runnable runnable : odd_updaters) {
+        runnable.run();
+      }
+    }
+  }
+
+  public double getDouble(String name) {
+    return doubles.get(name);
+  }
+
+  public boolean getBool(String name) {
+    return bools.get(name);
+  }
+
+  public void addDouble(String name, Supplier<Double> supplier) {
+    staggerer ^= 1;
+
+    if (staggerer == 0) {
+      even_updaters.add(
+        () -> {
+          doubles.put(name, supplier.get());
+        });
+    } else {
+      odd_updaters.add(
+        () -> {
+          doubles.put(name, supplier.get());
+        });
+    }
+  }
+
+  public void addBool(String name, Supplier<Boolean> supplier) {
+    staggerer ^= 1;
+
+    if (staggerer == 0) {
+      even_updaters.add(
+        () -> {
+          bools.put(name, supplier.get());
+        });
+    } else {
+      odd_updaters.add(
+        () -> {
+          bools.put(name, supplier.get());
+        });
+    }
+  }
+}
