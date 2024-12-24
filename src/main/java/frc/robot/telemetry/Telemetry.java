@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** Telemetry with shuffleboard */
 public class Telemetry extends SubsystemBase {
   
-  private Telemetry instance = null;
+  private static Telemetry instance = null;
 
   private HashMap<String, Double> doubles = new HashMap<String, Double>();
   private HashMap<String, Boolean> bools = new HashMap<String, Boolean>();
