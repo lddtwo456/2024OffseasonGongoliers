@@ -17,10 +17,10 @@ public class Telemetry extends SubsystemBase {
   private ArrayList<Runnable> even_updaters = new ArrayList<Runnable>();
   private ArrayList<Runnable> odd_updaters = new ArrayList<Runnable>();
 
-  private int periodic_loop = 1;
+  private int periodic_loop;
 
   private Telemetry() {
-    
+    periodic_loop = 0;
   }
 
   public Telemetry getInstance() {
