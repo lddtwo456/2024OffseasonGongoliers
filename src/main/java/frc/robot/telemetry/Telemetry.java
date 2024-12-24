@@ -49,11 +49,11 @@ public class Telemetry extends SubsystemBase {
   }
 
   public double getDouble(String name) {
-    return doubles.get(name);
+    return doubles.getOrDefault(name, 0.0);
   }
 
   public boolean getBool(String name) {
-    return bools.get(name);
+    return bools.getOrDefault(name, false);
   }
 
   public void addDouble(String name, Supplier<Double> supplier) {
